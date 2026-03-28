@@ -1,0 +1,33 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Repository for the construction of Fatec's integrator project. The project is about a website that is a filter of public notices and competitions",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GustavoNori/PI_2026_BACKEND.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "Nori, Raiane e Mapeli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GustavoNori/PI_2026_BACKEND/issues"
+  },
+  "homepage": "https://github.com/GustavoNori/PI_2026_BACKEND#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mysql2": "^3.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
