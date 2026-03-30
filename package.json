@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/GustavoNori/PI_2026_BACKEND#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mysql2": "^3.20.0"
