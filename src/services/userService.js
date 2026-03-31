@@ -27,7 +27,7 @@ const loginUser = async (email, password) => {
     if (!isValid) {
         throw new Error('Senha inválida');
     }
-
+    delete user.password_hash;
     return user;
 };
 
