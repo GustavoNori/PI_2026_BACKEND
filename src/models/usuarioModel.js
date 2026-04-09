@@ -1,4 +1,4 @@
-import db from '../database/connection.js';
+import db from '../Database/connection.js';
 
 const userModel = { 
     create: async (name, email, password_hash) => {
