@@ -1,8 +1,8 @@
 const { EntitySchema } = require("typeorm");
 
 module.exports = new EntitySchema({
-    name: "Notice",
-    tableName: "notices",
+    name: "Simulation",
+    tableName: "simulations",
     columns: {
         id: {
             primary: true,
@@ -12,23 +12,11 @@ module.exports = new EntitySchema({
         title: {
             type: "varchar",
         },
-        description: {
-            type: "text",
-            nullable: true,
-        },
-        publication_date: {
-            type: "date",
-            nullable: true,
-        },
-        link: {
-            type: "varchar",
-            nullable: true,
-        },
         created_at: {
             type: "timestamp",
             createDate: true,
         },
-        state_id: {
+        notice_id: {
             type: "int",
             nullable: true,
         },
@@ -38,10 +26,10 @@ module.exports = new EntitySchema({
         },
     },
     relations: {
-        state: {
+        notice: {
             type: "many-to-one",
-            target: "State",
-            joinColumn: { name: "state_id" },
+            target: "Notice",
+            joinColumn: { name: "notice_id" },
             nullable: true,
         },
         area: {
@@ -50,15 +38,15 @@ module.exports = new EntitySchema({
             joinColumn: { name: "area_id" },
             nullable: true,
         },
-        simulations: {
+        questions: {
             type: "one-to-many",
-            target: "Simulation",
-            inverseSide: "notice",
+            target: "Question",
+            inverseSide: "simulation",
         },
-        email_logs: {
+        simulation_attempts: {
             type: "one-to-many",
-            target: "EmailLog",
-            inverseSide: "notice",
+            target: "SimulationAttempt",
+            inverseSide: "simulation",
         },
     },
 });
