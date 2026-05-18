@@ -1,24 +1,12 @@
-import 'dotenv/config';
-import express from 'express';
-import userRoutes from './Routes/userRoutes.js'
-import subscriptionRoutes from './Routes/subscriptionRoutes.js';
-import webhookRoutes from './Routes/webhookRoutes.js'; 
+import { AppDataSource } from "./data-source.js"; 
+import app from "./src/app.js"; 
 
-const app = express()
+AppDataSource.initialize()
+    .then(() => {
+        console.log("Banco conectado");
 
-app.use(webhookRoutes);
-
-app.use(express.json())
-
-app.use(userRoutes);
-app.use(subscriptionRoutes);
-
-app.get('/', (req, res) => {
-  res.send('API rodando!');
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`✅ Servidor iniciado em: http://localhost:${PORT}`);
-});
+        app.listen(3000, () => {
+            console.log("Servidor rodando na porta 3000");
+        });
+    })
+    .catch((error) => console.log("Erro:", error));
