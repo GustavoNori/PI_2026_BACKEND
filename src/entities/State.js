@@ -1,8 +1,8 @@
 const { EntitySchema } = require("typeorm");
 
 module.exports = new EntitySchema({
-    name: "Area",
-    tableName: "areas",
+    name: "State",
+    tableName: "states",
     columns: {
         id: {
             primary: true,
@@ -12,17 +12,15 @@ module.exports = new EntitySchema({
         name: {
             type: "varchar",
         },
+        code: {
+            type: "varchar",
+        },
     },
     relations: {
         notices: {
             type: "one-to-many",
             target: "Notice",
-            inverseSide: "area",
-        },
-        simulations: {
-            type: "one-to-many",
-            target: "Simulation",
-            inverseSide: "area",
+            inverseSide: "state",
         },
     },
 });
