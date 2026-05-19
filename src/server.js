@@ -1,5 +1,5 @@
-import { AppDataSource } from "./data-source.js"; 
-import app from "./src/app.js"; 
+import { AppDataSource } from "../data-source.js"; 
+import app from "./app.js"; 
 
 AppDataSource.initialize()
     .then(() => {

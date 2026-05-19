@@ -1,26 +1,26 @@
-const { EntitySchema } = require("typeorm");
+import { EntitySchema } from "typeorm";
 
-module.exports = new EntitySchema({
-    name: "State",
-    tableName: "states",
-    columns: {
-        id: {
-            primary: true,
-            type: "int",
-            generated: true,
-        },
-        name: {
-            type: "varchar",
-        },
-        code: {
-            type: "varchar",
-        },
+export const StateEntity = new EntitySchema({
+  name: "State",
+  tableName: "states",
+  columns: {
+    id: {
+      primary: true,
+      type: "int",
+      generated: true,
     },
-    relations: {
-        notices: {
-            type: "one-to-many",
-            target: "Notice",
-            inverseSide: "state",
-        },
+    name: {
+      type: "varchar",
     },
+    code: {
+      type: "varchar",
+    },
+  },
+  relations: {
+    notices: {
+      type: "one-to-many",
+      target: "Notice",
+      inverseSide: "state",
+    },
+  },
 });
