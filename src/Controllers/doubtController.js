@@ -1,4 +1,4 @@
-import { AppDataSource } from "../../data-source";
+import { AppDataSource } from "../../data-source.js";
 import { DoubtEntity } from "../entities/Doubt.js";
 
 export class DoubtController {

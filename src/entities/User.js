@@ -19,6 +19,11 @@ export const UserEntity = new EntitySchema({
     password_hash: {
       type: "varchar",
     },
+    role: {
+  type: "enum",
+  enum: ["user", "admin"],
+  default: "user",
+},
     created_at: {
       type: "timestamp",
       createDate: true,
@@ -35,5 +40,10 @@ export const UserEntity = new EntitySchema({
       target: "EmailLog",
       inverseSide: "user",
     },
+    favorites: {
+  type: "one-to-many",
+  target: "Favorite",
+  inverseSide: "user",
+},
   },
 });

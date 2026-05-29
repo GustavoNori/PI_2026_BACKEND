@@ -25,7 +25,7 @@ export class AuthController {
             const user = await repo.findOne({
                 where: [
                     { name: identifier },
-                    { email: identifier } // Certifique-se de que sua UserEntity possui a propriedade 'email'
+                    { email: identifier }
                 ]
             });
 
@@ -62,7 +62,8 @@ export class AuthController {
         const user = repo.create({
             name,
             email,
-            password_hash: hashedPassword
+            password_hash: hashedPassword,
+            role: "user",
         });
 
         await repo.save(user);
@@ -90,7 +91,7 @@ export class AuthController {
         const repo = AppDataSource.getRepository(UserEntity);
 
         const { id } = req.params;
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         const hashedPassword = await hashPassword(password);
 
@@ -124,5 +125,25 @@ export class AuthController {
         await repo.remove(userToDelete);
 
         return res.status(200).json({ message: "Usuário removido com sucesso" });
+    }
+    async promoteToAdmin(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(UserEntity);
+            const { id } = req.params;
+
+            const user = await repo.findOneBy({ id: parseInt(id) });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            user.role = "admin";
+            await repo.save(user);
+
+            return res.status(200).json({ message: "User promoted to admin successfully" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
     }
 }
