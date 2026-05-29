@@ -60,5 +60,10 @@ export const NoticeEntity = new EntitySchema({
       target: "EmailLog",
       inverseSide: "notice",
     },
+    favorites: {
+      type: "one-to-many",
+      target: "Favorite",
+      inverseSide: "notice",
+    },
   },
 });

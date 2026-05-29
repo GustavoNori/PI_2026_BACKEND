@@ -1,18 +1,19 @@
-import { AppDataSource } from "../../data-source";
+import { AppDataSource } from "../../data-source.js";
 import { DoubtAnswerEntity } from "../entities/DoubtAnswer.js";
 
 export class DoubtAnswerController {
 
     async createDoubtAnswer(req, res) {
         const repo = AppDataSource.getRepository(DoubtAnswerEntity);
-        
-        const { content, doubt_id } = req.body;
-        const userId = req.user.id; // Supondo que o ID do usuário esteja disponível em req.user
+
+                const { doubt_id } = req.params;
+        const { content } = req.body;
+        const userId = req.user.id;
 
         try {
             const doubtAnswer = repo.create({
                 content,
-                doubt_id,
+                doubt_id: parseInt(doubt_id),
                 answered_by: userId
             });
 
@@ -72,6 +73,28 @@ export class DoubtAnswerController {
             await repo.remove(doubtAnswer);
 
             return res.json({ message: "Doubt answer deleted" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+    async updateDoubtAnswer(req, res) {
+        const repo = AppDataSource.getRepository(DoubtAnswerEntity);
+        const { id } = req.params;
+        const { content } = req.body;
+
+        try {
+            const doubtAnswerToUpdate = await repo.findOneBy({ id: parseInt(id) });
+
+            if (!doubtAnswerToUpdate) {
+                return res.status(404).json({ message: "Doubt answer not found" });
+            }
+
+            if (content) doubtAnswerToUpdate.content = content;
+
+            await repo.save(doubtAnswerToUpdate);
+
+            return res.json(doubtAnswerToUpdate);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
