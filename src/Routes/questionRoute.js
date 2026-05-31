@@ -6,7 +6,6 @@ import { checkRole } from "../middlewares/checkRoles.js";
 const questionController = new QuestionController();
 const questionRouter = express.Router();
 
-
 questionRouter.get("/simulations/:simulation_id/questions", questionController.getQuestionsBySimulation);
 questionRouter.get("/questions/:id", questionController.getOneQuestion);
 
