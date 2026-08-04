@@ -126,6 +126,23 @@ export class AuthController {
 
         return res.status(200).json({ message: "Usuário removido com sucesso" });
     }
+
+    async getUserByEmail(req, res) {
+        const repo = AppDataSource.getRepository(UserEntity);
+
+        const { email } = req.params;
+
+        const user = await repo.findOne({
+            where: { email }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.json(user);
+    }
+
     async promoteToAdmin(req, res) {
         try {
             const repo = AppDataSource.getRepository(UserEntity);
@@ -141,6 +158,26 @@ export class AuthController {
             await repo.save(user);
 
             return res.status(200).json({ message: "User promoted to admin successfully" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+    async removeUserAdmin(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(UserEntity);
+            const { id } = req.params;
+
+            const user = await repo.findOneBy({ id: parseInt(id) });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            user.role = "user";
+            await repo.save(user);
+
+            return res.status(200).json({ message: "User demoted to user successfully" });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
