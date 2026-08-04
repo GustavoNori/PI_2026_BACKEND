@@ -163,7 +163,7 @@ export class AuthController {
             return res.status(500).json({ message: "Internal server error" });
         }
     }
-    async removeUserAdmin(req, res) {
+    async demoteToUser(req, res) {
         try {
             const repo = AppDataSource.getRepository(UserEntity);
             const { id } = req.params;

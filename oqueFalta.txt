@@ -16,7 +16,7 @@
 }
 - Diferenciais entre planos -- 10 dias{
     Gratuito{
-        - Pode salvar até 5 editais
+        - Pode salvar até 5 editais -- falta testar
         - Feed basico( Busca simples por Categoria)
     }
     Premium{
@@ -38,3 +38,11 @@ Ideias
 - Ideia da Raiane q eu n entendi( DashBoard pro user) ---- NULL
 
 - CORS -- HOJE SEU ANIMAL -- feito
+
+
+
+
+Recursos de nuvem
+
+- Azure Functions para a parte de quando aparece um novo post
+- 

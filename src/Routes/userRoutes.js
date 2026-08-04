@@ -15,5 +15,6 @@ router.put("/users/:id", authMiddleware, checkRole("admin", "user"), authControl
 router.delete("/users/:id", authMiddleware, checkRole("admin"), authController.deleteUser);
 
 router.patch("/users/:id/promote", authMiddleware, checkRole("admin"), authController.promoteToAdmin);
+router.patch("/users/:id/demote", authMiddleware, checkRole("admin"), authController.demoteToUser);
 
 export default router;
