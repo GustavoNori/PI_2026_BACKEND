@@ -6,9 +6,10 @@ import favoriteRouter from "./routes/favoriteRoute.js";
 import questionRouter from "./routes/questionRoute.js";
 import simulationRouter from "./routes/simulationRoute.js";
 import attemptRouter from "./Routes/simulationAttemptRoute.js";
+import cors from "cors";
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 
 app.use(router);
