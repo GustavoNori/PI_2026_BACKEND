@@ -10,6 +10,13 @@ export class FavoriteController {
             const { notice_id } = req.params;
             const user_id = req.user.id;
 
+            const limitFavoritesFree =  await favoriteRepo.count({
+                where: { user_id } });
+
+                if (limitFavoritesFree >= 5) {
+                    return res.status(403).json({ message: "Free users can only have up to 5 favorites. Please upgrade to premium." });
+                }
+
             const alreadyFavorited = await favoriteRepo.findOne({
                 where: { user_id, notice_id: parseInt(notice_id) },
             });
