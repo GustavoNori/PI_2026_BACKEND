@@ -19,6 +19,10 @@ export const FavoriteEntity = new EntitySchema({
         notice_id: {
             type: "int",
         },
+        notified: {
+            type: "boolean",
+            default: false,
+        },
     },
     relations: {
         user: {

@@ -45,4 +45,3 @@ Ideias
 Recursos de nuvem
 
 - Azure Functions para a parte de quando aparece um novo post
-- 

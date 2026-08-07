@@ -1,4 +1,4 @@
-import { AppDataSource } from "../../data-source";
+import { AppDataSource } from "../../data-source.js";
 import { NoticeEntity } from "../entities/Notice.js";
 
 export class NoticeController {

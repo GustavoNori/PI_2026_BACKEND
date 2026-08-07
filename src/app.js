@@ -6,6 +6,8 @@ import favoriteRouter from "./routes/favoriteRoute.js";
 import questionRouter from "./routes/questionRoute.js";
 import simulationRouter from "./routes/simulationRoute.js";
 import attemptRouter from "./Routes/simulationAttemptRoute.js";
+import noticeRoutes from "./routes/noticeRoutes.js";
+
 import cors from "cors";
 
 const app = express();
@@ -19,5 +21,6 @@ app.use(favoriteRouter);
 app.use(questionRouter);
 app.use(simulationRouter);
 app.use(attemptRouter);
+app.use("/notices", noticeRoutes);
 
 export default app;
