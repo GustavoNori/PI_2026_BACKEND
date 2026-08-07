@@ -22,7 +22,8 @@ export const NoticeEntity = new EntitySchema({
     },
     link: {
       type: "varchar",
-      nullable: true,
+      unique: true,
+      nullable: false,
     },
     created_at: {
       type: "timestamp",
