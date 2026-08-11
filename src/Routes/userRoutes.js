@@ -17,4 +17,7 @@ router.delete("/users/:id", authMiddleware, checkRole("admin"), authController.d
 router.patch("/users/:id/promote", authMiddleware, checkRole("admin"), authController.promoteToAdmin);
 router.patch("/users/:id/demote", authMiddleware, checkRole("admin"), authController.demoteToUser);
 
+router.get("/users/:id/subscription", authMiddleware, checkRole("admin", "user"), authController.getUserSubscription);
+router.post("/users/:id/activate-premium", authMiddleware, checkRole("admin", "user"), authController.activatePremium);
+
 export default router;

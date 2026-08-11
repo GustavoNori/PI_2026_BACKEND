@@ -1,5 +1,6 @@
 import { AppDataSource } from "../../data-source.js";
 import { UserEntity } from "../entities/User.js";
+import { SubscriptionEntity } from "../entities/Subscription.js";
 import { hashPassword } from "../utils/hash.js";
 import { generateToken } from "../utils/jwt.js";
 import { comparePassword } from "../utils/hash.js";
@@ -178,6 +179,62 @@ export class AuthController {
             await repo.save(user);
 
             return res.status(200).json({ message: "User demoted to user successfully" });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async getUserSubscription(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(SubscriptionEntity);
+            const { id } = req.params;
+
+            const subscription = await repo.findOne({
+                where: {
+                    user_id: parseInt(id),
+                    status: "active"
+                }
+            });
+
+            if (!subscription) {
+                return res.json({ hasPremium: false, plan: "free" });
+            }
+
+            const endDate = new Date(subscription.end_date);
+            const now = new Date();
+
+            if (endDate < now) {
+                return res.json({ hasPremium: false, plan: "free" });
+            }
+
+            return res.json({ hasPremium: true, plan: subscription.plan });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+    async activatePremium(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(SubscriptionEntity);
+            const { id } = req.params;
+
+            const startDate = new Date();
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 30);
+
+            const subscription = repo.create({
+                plan: "premium",
+                status: "active",
+                start_date: startDate,
+                end_date: endDate,
+                user_id: parseInt(id)
+            });
+
+            await repo.save(subscription);
+
+            return res.status(201).json({ message: "Premium ativado com sucesso" });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
