@@ -5,7 +5,7 @@ import doubtAnswerRouter from "./routes/doubtAnswerRoute.js";
 import favoriteRouter from "./routes/favoriteRoute.js";
 import questionRouter from "./routes/questionRoute.js";
 import simulationRouter from "./routes/simulationRoute.js";
-import attemptRouter from "./Routes/simulationAttemptRoute.js";
+import attemptRouter from "./routes/simulationAttemptRoute.js";
 import noticeRoutes from "./routes/noticeRoutes.js";
 
 import cors from "cors";
