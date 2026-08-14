@@ -1,4 +1,4 @@
-import { SimulationAttemptController } from "../Controllers/SimulationAttemptController.js";
+import { SimulationAttemptController } from "../controllers/SimulationAttemptController.js";
 import express from "express";
 import { authMiddleware } from "../utils/auth.js";
 import { checkRole } from "../middlewares/checkRoles.js";

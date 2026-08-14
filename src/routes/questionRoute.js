@@ -1,4 +1,4 @@
-import { QuestionController } from "../Controllers/QuestionController.js";
+import { QuestionController } from "../controllers/QuestionController.js";
 import express from "express";
 import { authMiddleware } from "../utils/auth.js";
 import { checkRole } from "../middlewares/checkRoles.js";

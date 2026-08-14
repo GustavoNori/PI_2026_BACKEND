@@ -1,4 +1,4 @@
-import { FavoriteController } from "../Controllers/FavoriteController.js";
+import { FavoriteController } from "../controllers/FavoriteController.js";
 import express from "express";
 import { authMiddleware } from "../utils/auth.js";
 import { checkRole } from "../middlewares/checkRoles.js";

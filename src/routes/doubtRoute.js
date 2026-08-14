@@ -1,4 +1,4 @@
-import { DoubtController } from "../Controllers/doubtController.js";
+import { DoubtController } from "../controllers/doubtController.js";
 import express from "express";
 import { authMiddleware } from "../utils/auth.js";
 
