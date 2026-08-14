@@ -1,4 +1,4 @@
-import { SimulationController } from "../controllers/SimulationController.js";
+import { SimulationController } from "../controllers/simulationController.js";
 import express from "express";
 import { authMiddleware } from "../utils/auth.js";
 import { checkRole } from "../middlewares/checkRoles.js";
