@@ -54,22 +54,36 @@ export class AuthController {
     }
 
     async createUser(req, res) {
-        const repo = AppDataSource.getRepository(UserEntity);
+        try {
+            const repo = AppDataSource.getRepository(UserEntity);
+            const { name, email, password } = req.body;
 
-        const { name, email, password } = req.body;
+            if (!name || !email || !password) {
+                return res.status(400).json({ message: "Nome, email e senha são obrigatórios" });
+            }
 
-        const hashedPassword = await hashPassword(password);
+            const existingUser = await repo.findOne({ where: { email } });
+            if (existingUser) {
+                return res.status(409).json({ message: "Email já cadastrado" });
+            }
 
-        const user = repo.create({
-            name,
-            email,
-            password_hash: hashedPassword,
-            role: "user",
-        });
+            const hashedPassword = await hashPassword(password);
+            const user = repo.create({
+                name,
+                email,
+                password_hash: hashedPassword,
+                role: "user",
+            });
+            await repo.save(user);
 
-        await repo.save(user);
-
-        return res.status(201).json({ message: "User created" });
+            return res.status(201).json({ message: "User created" });
+        } catch (error) {
+            if (error.driverError?.code === 'ER_DUP_ENTRY' || error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ message: "Email já cadastrado" });
+            }
+            console.error(error);
+            return res.status(500).json({ message: "Erro interno no servidor" });
+        }
     }
 
     async getOneUser(req, res) {
