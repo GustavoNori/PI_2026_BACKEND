@@ -19,10 +19,5 @@ export const AreaEntity = new EntitySchema({
       target: "Notice",
       inverseSide: "area",
     },
-    simulations: {
-      type: "one-to-many",
-      target: "Simulation",
-      inverseSide: "area",
-    },
   },
 });

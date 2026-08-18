@@ -49,13 +49,6 @@ export const NoticeEntity = new EntitySchema({
     },
   },
 
-  relations: {
-    simulations: {
-      type: "one-to-many",
-      target: "Simulation",
-      inverseSide: "notice",
-    },
-
     email_logs: {
       type: "one-to-many",
       target: "EmailLog",
@@ -68,4 +61,4 @@ export const NoticeEntity = new EntitySchema({
       inverseSide: "notice",
     },
   },
-});
+);

@@ -3,9 +3,9 @@ import router from "./routes/userRoutes.js";
 import doubtRouter from "./routes/doubtRoute.js";
 import doubtAnswerRouter from "./routes/doubtAnswerRoute.js";
 import favoriteRouter from "./routes/favoriteRoute.js";
-import questionRouter from "./routes/questionRoute.js";
-import simulationRouter from "./routes/simulationRoute.js";
-import attemptRouter from "./routes/simulationAttemptRoute.js";
+// import questionRouter from "./routes/questionRoute.js";
+// import simulationRouter from "./routes/simulationRoute.js";
+// import attemptRouter from "./routes/simulationAttemptRoute.js";
 import noticeRoutes from "./routes/noticeRoutes.js";
 
 import cors from "cors";
@@ -18,9 +18,9 @@ app.use(router);
 app.use(doubtRouter);
 app.use(doubtAnswerRouter);
 app.use(favoriteRouter);
-app.use(questionRouter);
-app.use(simulationRouter);
-app.use(attemptRouter);
+// app.use(questionRouter);
+// app.use(simulationRouter);
+// app.use(attemptRouter);
 app.use("/notices", noticeRoutes);
 
 export default app;
