@@ -5,7 +5,7 @@ export class NoticeController {
     async getAllNotices(req, res) {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
-            const notices = await noticeRepo.find({ relations: ["area", "state"] });
+            const notices = await noticeRepo.find();
             return res.json(notices);
         } catch (error) {
             console.error(error);
@@ -17,7 +17,7 @@ export class NoticeController {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const { id } = req.params;
-            const notice = await noticeRepo.findOne({ where: { id: parseInt(id) }, relations: ["area", "state"] });
+            const notice = await noticeRepo.findOne({ where: { id: parseInt(id) } });
 
             if (!notice) {
                 return res.status(404).json({ message: "Notice not found" });
@@ -34,7 +34,7 @@ export class NoticeController {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const { areaId } = req.params;
-            const notices = await noticeRepo.find({ where: { area: { id: parseInt(areaId) } }, relations: ["area", "state"] });
+            const notices = await noticeRepo.find({ where: { area_id: parseInt(areaId) } });
             
             if (!notices || notices.length === 0) {
                 return res.status(404).json({ message: "No notices found for this area" });
