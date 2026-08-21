@@ -20,4 +20,8 @@ router.patch("/users/:id/demote", authMiddleware, checkRole("admin"), authContro
 router.get("/users/:id/subscription", authMiddleware, checkRole("admin", "user"), authController.getUserSubscription);
 router.post("/users/:id/activate-premium", authMiddleware, checkRole("admin", "user"), authController.activatePremium);
 
+
+router.post("/auth/forgot-password", (req, res) => authController.forgotPassword(req, res));
+router.post("/auth/reset-password", (req, res) => authController.resetPassword(req, res));
+
 export default router;
