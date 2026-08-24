@@ -309,7 +309,7 @@ export class AuthController {
           .status(200)
           .json({
             message:
-              "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.",
+              "Se o e-mail estiver cadastrado, você recebdsgsdgerá um link para redefinir a senha.",
           });
       }
 
