@@ -1,24 +1,12 @@
-import nodemailer from "nodemailer";
-import dns from "node:dns";
+import { Resend } from "resend";
 
-dns.setDefaultResultOrder("ipv4first");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Seu Site <onboarding@resend.dev>";
 
 export async function sendNoticeReminder(userEmail, notice) {
-    await transporter.sendMail({
-        from: `"Seu Site" <${process.env.SMTP_USER}>`,
+    const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
         to: userEmail,
         subject: `Lembrete: ${notice.title} está próximo da data`,
         html: `
@@ -27,13 +15,17 @@ export async function sendNoticeReminder(userEmail, notice) {
             <p><a href="${notice.link}">Ver publicação</a></p>
         `,
     });
-}
-export async function sendForgotPasswordEmail(userEmail, token) {
-   
-    const resetUrl = `${process.env.FRONTEND_URL}?token=${token}´  || ´"http://localhost:3000"}/reset-password?token=${token}`;
 
-    await transporter.sendMail({
-        from: `"Seu Site" <${process.env.SMTP_USER}>`,
+    if (error) {
+        throw new Error(`Falha ao enviar e-mail de lembrete: ${error.message}`);
+    }
+}
+
+export async function sendForgotPasswordEmail(userEmail, token) {
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password?token=${token}`;
+
+    const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
         to: userEmail,
         subject: "Recuperação de Senha",
         html: `
@@ -44,4 +36,8 @@ export async function sendForgotPasswordEmail(userEmail, token) {
             <p>Se você não solicitou a alteração, ignore este e-mail.</p>
         `,
     });
+
+    if (error) {
+        throw new Error(`Falha ao enviar e-mail de recuperação: ${error.message}`);
+    }
 }
