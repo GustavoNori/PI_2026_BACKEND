@@ -3,7 +3,7 @@ import { AppDataSource } from "../../data-source.js";
 import { sendNoticeReminder } from "../utils/emailUtils.js";
 
 function formatDate(date) {
-    return date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    return date.toISOString().split("T")[0];
 }
 
 export function startFavoriteNotificationJob() {

@@ -1,12 +1,23 @@
 import { AppDataSource } from "../../data-source.js";
 import { NoticeEntity } from "../entities/Notice.js";
+import { UserEntity } from "../entities/User.js";
 
 export class NoticeController {
     async getAllNotices(req, res) {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const notices = await noticeRepo.find();
-            return res.json(notices);
+            const userRepo = AppDataSource.getRepository(UserEntity);
+            const user = await userRepo.findOne({ where: { id: req.user.id } });
+            const userRole = user.role;
+
+            if (userRole === "user" && notices.length > 5) {
+                const limitedNotices = notices.slice(0, 9);
+                return res.json(limitedNotices);
+            }else{
+                return res.json(notices);
+            }
+
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
