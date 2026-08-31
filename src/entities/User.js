@@ -21,7 +21,7 @@ export const UserEntity = new EntitySchema({
     },
     role: {
   type: "enum",
-  enum: ["user", "admin"],
+  enum: ["user", "admin", "premium"],
   default: "user",
 },
     created_at: {
