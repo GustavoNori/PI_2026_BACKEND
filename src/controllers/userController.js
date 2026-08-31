@@ -7,6 +7,7 @@ import { comparePassword } from "../utils/hash.js";
 import { sendForgotPasswordEmail } from "../utils/emailUtils.js";
 import { UserTokenEntity } from "../entities/UserToken.js";
 import { generateRandomToken } from "../utils/tokenUtils.js";
+import  { validateCPF } from "../utils/cpfValidator.js";
 
 export class AuthController {
   async getAllUsers(req, res) {
@@ -56,17 +57,25 @@ export class AuthController {
   async createUser(req, res) {
     try {
       const repo = AppDataSource.getRepository(UserEntity);
-      const { name, email, password } = req.body;
+      const { name, email, password, cpf } = req.body;
 
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !cpf) {
         return res
           .status(400)
-          .json({ message: "Nome, email e senha são obrigatórios" });
+          .json({ message: "Nome, email, senha e CPF são obrigatórios" });
       }
 
       const existingUser = await repo.findOne({ where: { email } });
       if (existingUser) {
         return res.status(409).json({ message: "Email já cadastrado" });
+      }
+
+      const existingCpf = await repo.findOne({ where: { cpf } });
+      if (existingCpf) {
+        return res.status(409).json({ message: "CPF já cadastrado" });
+      }
+      if (!validateCPF(cpf)) {
+        return res.status(400).json({ message: "CPF inválido" });
       }
 
       const hashedPassword = await hashPassword(password);
@@ -75,6 +84,7 @@ export class AuthController {
         email,
         password_hash: hashedPassword,
         role: "user",
+        cpf,
       });
       await repo.save(user);
 

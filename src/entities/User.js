@@ -16,6 +16,10 @@ export const UserEntity = new EntitySchema({
       type: "varchar",
       unique: true,
     },
+    cpf: {
+      type: "varchar",
+      unique: true,
+    },
     password_hash: {
       type: "varchar",
     },
