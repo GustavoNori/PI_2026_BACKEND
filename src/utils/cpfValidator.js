@@ -1,4 +1,4 @@
-function validateCPF(cpf) {
+export function validateCPF(cpf) {
     
     cpf = cpf.replace(/[^\d]/g, '');
 
@@ -24,5 +24,3 @@ function validateCPF(cpf) {
 
     return true;
 }
-
-module.exports = { validateCPF };

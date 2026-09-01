@@ -8,7 +8,8 @@ export class NoticeController {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const notices = await noticeRepo.find();
             const userRepo = AppDataSource.getRepository(UserEntity);
-            const user = await userRepo.findOne({ where: { id: req.user.id } });
+            const {userId} = req.params;
+            const user = await userRepo.findOne({ where: { id: userId } });
             const userRole = user.role;
 
             if (userRole === "user" && notices.length > 5) {
