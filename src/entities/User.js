@@ -20,6 +20,9 @@ export const UserEntity = new EntitySchema({
       type: "varchar",
       unique: true,
     },
+    data_nascimento: {
+      type: "date",
+    },
     password_hash: {
       type: "varchar",
     },
