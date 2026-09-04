@@ -57,9 +57,9 @@ export class AuthController {
   async createUser(req, res) {
     try {
       const repo = AppDataSource.getRepository(UserEntity);
-      const { name, email, password, cpf } = req.body;
+      const { name, email, password, cpf, data_nascimento } = req.body;
 
-      if (!name || !email || !password || !cpf) {
+      if (!name || !email || !password || !cpf || !data_nascimento) {
         return res
           .status(400)
           .json({ message: "Nome, email, senha e CPF são obrigatórios" });
@@ -85,6 +85,7 @@ export class AuthController {
         password_hash: hashedPassword,
         role: "user",
         cpf,
+        data_nascimento,
       });
       await repo.save(user);
 
@@ -121,7 +122,7 @@ export class AuthController {
     const repo = AppDataSource.getRepository(UserEntity);
 
     const { id } = req.params;
-    const { name, email, password, role } = req.body;
+    const { name, email, password, data_nascimento } = req.body;
 
     const hashedPassword = await hashPassword(password);
 
@@ -132,6 +133,7 @@ export class AuthController {
     }
     if (name) userToUpdate.name = name;
     if (email) userToUpdate.email = email;
+    if (data_nascimento) userToUpdate.data_nascimento = data_nascimento;
 
     if (password) {
       userToUpdate.password_hash = await hashPassword(password);
