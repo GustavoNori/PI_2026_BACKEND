@@ -19,6 +19,7 @@ if (normalExists) {
         email: process.env.NORMAL_EMAIL,
         password_hash: await bcrypt.hash(process.env.NORMAL_PASSWORD, 10),
         cpf: process.env.NORMAL_CPF,
+        data_nascimento: process.env.NORMAL_DATA_NASCIMENTO,
         role: "user",
     });
     console.log("User Normal criado com sucesso!");
