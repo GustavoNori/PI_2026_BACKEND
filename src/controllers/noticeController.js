@@ -13,7 +13,7 @@ export class NoticeController {
             const userRole = user.role;
 
             if (userRole === "user" && notices.length > 5) {
-                const limitedNotices = notices.slice(0, 9);
+                const limitedNotices = notices.slice(0, 5);
                 return res.json(limitedNotices);
             }else{
                 return res.json(notices);
