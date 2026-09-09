@@ -19,6 +19,7 @@ if (adminExists) {
         email: process.env.ADMIN_EMAIL,
         password_hash: await bcrypt.hash(process.env.ADMIN_PASSWORD, 10),
         cpf: process.env.ADMIN_CPF,
+        data_nascimento: process.env.ADMIN_DATA_NASCIMENTO,
         role: "admin",
     });
     console.log("Admin criado com sucesso!");

@@ -18,6 +18,8 @@ if (premiumExists) {
         name: process.env.PREMIUM_NAME,
         email: process.env.PREMIUM_EMAIL,
         password_hash: await bcrypt.hash(process.env.PREMIUM_PASSWORD, 10),
+        cpf: process.env.PREMIUM_CPF,
+        data_nascimento: process.env.PREMIUM_DATA_NASCIMENTO,
         role: "premium",
     });
     console.log("User Premium criado com sucesso!");

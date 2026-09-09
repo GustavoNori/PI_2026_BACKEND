@@ -21,7 +21,7 @@ router.get("/users/:id/subscription", authMiddleware, checkRole("admin", "user")
 router.post("/users/:id/activate-premium", authMiddleware, checkRole("admin", "user"), authController.activatePremium);
 
 
-router.post("/auth/forgot-password", (req, res) => authController.forgotPassword(req, res));
-router.post("/auth/reset-password", (req, res) => authController.resetPassword(req, res));
+router.post("/auth/forgot-password", authController.forgotPassword);
+router.post("/auth/reset-password", authController.resetPassword);
 
 export default router;
