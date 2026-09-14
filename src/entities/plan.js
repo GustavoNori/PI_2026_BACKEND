@@ -22,7 +22,7 @@ export const PlanEntity = new EntitySchema({
             scale: 2,
         },
         activate: {
-            type: "Boolean",
+            type: "boolean",
             default: true,
         },
         created_at: {
