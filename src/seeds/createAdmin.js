@@ -21,6 +21,7 @@ if (adminExists) {
         cpf: process.env.ADMIN_CPF,
         data_nascimento: process.env.ADMIN_DATA_NASCIMENTO,
         role: "admin",
+        email_verified: true,
     });
     console.log("Admin criado com sucesso!");
 }

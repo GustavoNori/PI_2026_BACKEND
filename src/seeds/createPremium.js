@@ -12,7 +12,7 @@ const premiumExists = await userRepo.findOne({
 });
 
 if (premiumExists) {
-    console.log("User Premium já existe já existe!");
+    console.log("User Premium já existe!");
 } else {
     await userRepo.save({
         name: process.env.PREMIUM_NAME,
@@ -21,6 +21,7 @@ if (premiumExists) {
         cpf: process.env.PREMIUM_CPF,
         data_nascimento: process.env.PREMIUM_DATA_NASCIMENTO,
         role: "premium",
+        email_verified: true,
     });
     console.log("User Premium criado com sucesso!");
 }

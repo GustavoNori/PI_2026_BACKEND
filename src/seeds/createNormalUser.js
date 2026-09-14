@@ -21,6 +21,7 @@ if (normalExists) {
         cpf: process.env.NORMAL_CPF,
         data_nascimento: process.env.NORMAL_DATA_NASCIMENTO,
         role: "user",
+        email_verified: true,
     });
     console.log("User Normal criado com sucesso!");
 }
