@@ -1,7 +1,7 @@
 import { AppDataSource } from "../../data-source.js";
 import { PlanEntity } from "../entities/plan.js";
 
-export class checkoutController {
+export class PlanController {
 
     async createPlan(req, res) {
             try {
@@ -71,4 +71,63 @@ export class checkoutController {
         }
     }
 
+    async getAllPlans(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(PlanEntity);
+            
+            const plans = await repo.find();
+
+            return res.json(plans);
+        } catch (error) {
+            console.error('Erro ao buscar todos planos:', error);
+            return res.status(500).json({ error: 'Erro interno ao buscar planos' });
+        }
+    }
+
+    async getAllPlansActivated(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(PlanEntity);
+            
+            const plans = await repo.find({
+                where: { active: true }
+            });
+
+            return res.json(plans);
+        } catch (error) {
+            console.error('Erro ao buscar planos ativos:', error);
+            return res.status(500).json({ error: 'Erro interno ao buscar planos' });
+        }
+    }
+
+    async getOnePlan(req, res) {
+        try {
+            const {planid } = req.body;
+            const repo = AppDataSource.getRepository(PlanEntity);
+            
+            const plans = await repo.findOne({
+                where: { id: planid }
+            });
+
+            return res.json(plans);
+
+        } catch (error) {
+            console.error('Erro ao buscar planos ativos:', error);
+            return res.status(500).json({ error: 'Erro interno ao buscar planos' });
+        }
+    }
+
+    async getAllPlansNotActivated(req, res) {
+        try {
+            const repo = AppDataSource.getRepository(PlanEntity);
+            
+            const plans = await repo.find({
+                where: { active: false }
+            });
+
+            return res.json(plans);
+        } catch (error) {
+            console.error('Erro ao buscar planos desativados:', error);
+            return res.status(500).json({ error: 'Erro interno ao buscar planos' });
+        }
+    }
 }
