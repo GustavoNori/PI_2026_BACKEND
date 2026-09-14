@@ -58,7 +58,7 @@ export class AuthController {
   async createUser(req, res) {
     try {
       const repo = AppDataSource.getRepository(UserEntity);
-      const { name, email, password, cpf, data_nascimento, state, preferences } = req.body;
+      const { name, email, password, cpf, data_nascimento } = req.body;
 
       if (!name || !email || !password || !cpf || !data_nascimento) {
         return res
