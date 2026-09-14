@@ -1,6 +1,6 @@
 import { EntitySchema } from "typeorm";
 
-export const Plan = new EntitySchema({
+export const PlanEntity = new EntitySchema({
     name: "Plan",    
     tableName: "plan",    
     columns: {
