@@ -23,5 +23,6 @@ router.post("/users/:id/activate-premium", authMiddleware, checkRole("admin", "u
 
 router.post("/auth/forgot-password", authController.forgotPassword);
 router.post("/auth/reset-password", authController.resetPassword);
+router.post("/verify-email", authController.verifyEmail);
 
 export default router;

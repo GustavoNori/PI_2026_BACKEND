@@ -13,6 +13,10 @@ export const UserTokenEntity = new EntitySchema({
             type: "varchar",
             unique: true,
         },
+        type: {
+            type: "enum",
+            enum: ["PASSWORD_RESET", "EMAIL_VERIFICATION"],
+        },
         user_id: {
             type: "int",
         },

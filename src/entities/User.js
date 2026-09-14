@@ -26,11 +26,22 @@ export const UserEntity = new EntitySchema({
     password_hash: {
       type: "varchar",
     },
+    state: {
+      type: "varchar",
+    },
+    preferences: {
+      type: "simple-array",
+      nullable: true,
+    },
     role: {
   type: "enum",
   enum: ["user", "admin", "premium"],
   default: "user",
 },
+    email_verified: {
+      type: "boolean",
+      default: false,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,

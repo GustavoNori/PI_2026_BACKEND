@@ -7,7 +7,8 @@ import { comparePassword } from "../utils/hash.js";
 import { sendForgotPasswordEmail } from "../utils/emailUtils.js";
 import { UserTokenEntity } from "../entities/UserToken.js";
 import { generateRandomToken } from "../utils/tokenUtils.js";
-import  { validateCPF } from "../utils/cpfValidator.js";
+import { validateCPF } from "../utils/cpfValidator.js";
+import { createEmailVerificationToken, sendEmailVerificationEmail } from "../utils/emailUtils.js";
 
 export class AuthController {
   async getAllUsers(req, res) {
@@ -57,12 +58,12 @@ export class AuthController {
   async createUser(req, res) {
     try {
       const repo = AppDataSource.getRepository(UserEntity);
-      const { name, email, password, cpf, data_nascimento } = req.body;
+      const { name, email, password, cpf, data_nascimento, state, preferences } = req.body;
 
-      if (!name || !email || !password || !cpf || !data_nascimento) {
+      if (!name || !email || !password || !cpf || !data_nascimento || !state || !preferences) {
         return res
           .status(400)
-          .json({ message: "Nome, email, senha e CPF são obrigatórios" });
+          .json({ message: "Nome, email, senha, CPF, data de nascimento, estado e preferências são obrigatórios" });
       }
 
       const existingUser = await repo.findOne({ where: { email } });
@@ -86,8 +87,17 @@ export class AuthController {
         role: "user",
         cpf,
         data_nascimento,
+        state,
+        preferences,
       });
       await repo.save(user);
+
+      try {
+        const { token } = await createEmailVerificationToken(user.id);
+        await sendEmailVerificationEmail(user.email, token);
+      } catch (emailError) {
+        console.error("Falha ao enviar e-mail de verificação:", emailError);
+      }
 
       return res.status(201).json({ message: "User created" });
     } catch (error) {
@@ -118,30 +128,35 @@ export class AuthController {
     return res.json(user);
   }
 
-  async updateUser(req, res) {
+async updateUser(req, res) {
+  try {
     const repo = AppDataSource.getRepository(UserEntity);
-
     const { id } = req.params;
-    const { name, email, password, data_nascimento } = req.body;
 
-    const hashedPassword = await hashPassword(password);
+    if (req.user.id !== parseInt(id)) {
+      return res.status(403).json({ message: "Você não tem permissão para atualizar este usuário" });
+    }
+
+    const { name, state, preferences } = req.body;
 
     const userToUpdate = await repo.findOneBy({ id: parseInt(id) });
 
     if (!userToUpdate) {
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    if (name) userToUpdate.name = name;
-    if (email) userToUpdate.email = email;
-    if (data_nascimento) userToUpdate.data_nascimento = data_nascimento;
 
-    if (password) {
-      userToUpdate.password_hash = await hashPassword(password);
-    }
+    if (name) userToUpdate.name = name;
+    if (state) userToUpdate.state = state;
+    if (preferences) userToUpdate.preferences = preferences;
+
     await repo.save(userToUpdate);
 
     return res.status(200).json({ message: "Usuário atualizado com sucesso" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro interno no servidor" });
   }
+}
 
   async deleteUser(req, res) {
     const repo = AppDataSource.getRepository(UserEntity);
@@ -321,11 +336,14 @@ export class AuthController {
           .status(200)
           .json({
             message:
-              "Se o e-mail estiver cadastrado, você recebdsgsdgerá um link para redefinir a senha.",
+              "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.",
           });
       }
 
-      await tokenRepo.update({ user_id: user.id, used: false }, { used: true });
+      await tokenRepo.update(
+        { user_id: user.id, type: "PASSWORD_RESET", used: false },
+        { used: true }
+      );
       const token = generateRandomToken();
 
       const expiresAt = new Date();
@@ -333,6 +351,7 @@ export class AuthController {
 
       const newToken = tokenRepo.create({
         token,
+        type: "PASSWORD_RESET",
         user_id: user.id,
         expires_at: expiresAt,
         used: false,
@@ -367,7 +386,7 @@ export class AuthController {
       const userRepo = AppDataSource.getRepository(UserEntity);
 
       const userToken = await tokenRepo.findOne({
-        where: { token, used: false },
+        where: { token, used: false, type: "PASSWORD_RESET" },
       });
 
       if (!userToken) {
@@ -400,4 +419,39 @@ export class AuthController {
       return res.status(500).json({ message: "Erro interno no servidor" });
     }
   }
+  async verifyEmail(req, res) {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        return res.status(400).json({ message: "Token é obrigatório" });
+      }
+
+      const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
+      const userRepo = AppDataSource.getRepository(UserEntity);
+
+      const userToken = await tokenRepo.findOne({
+        where: { token, type: "EMAIL_VERIFICATION", used: false },
+      });
+
+      if (!userToken) {
+        return res.status(400).json({ message: "Token inválido ou já utilizado" });
+      }
+
+      if (new Date() > new Date(userToken.expires_at)) {
+        return res.status(400).json({ message: "Token expirado, solicite um novo e-mail de confirmação" });
+      }
+
+      await userRepo.update({ id: userToken.user_id }, { email_verified: true });
+
+      userToken.used = true;
+      await tokenRepo.save(userToken);
+
+      return res.status(200).json({ message: "E-mail verificado com sucesso" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro interno no servidor" });
+    }
+  }
 }
+

@@ -1,4 +1,7 @@
 import { Resend } from "resend";
+import { AppDataSource } from "../../data-source.js";
+import { UserTokenEntity } from "../entities/UserToken.js";
+import { generateRandomToken } from "./tokenUtils.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -40,4 +43,46 @@ export async function sendForgotPasswordEmail(userEmail, token) {
     if (error) {
         throw new Error(`Falha ao enviar e-mail de recuperação: ${error.message}`);
     }
+}
+
+export async function sendEmailVerificationEmail(userEmail, token) {
+    const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-email?token=${token}`;
+    const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: userEmail,
+        subject: "Verificação de E-mail",
+        html: `
+            <p>Olá,</p>
+            <p>Obrigado por se registrar. Por favor, verifique seu e-mail clicando no link abaixo:</p>
+            <p><a href="${verificationUrl}">Verificar E-mail</a></p>
+            <p>Se você não se registrou, ignore este e-mail.</p>
+        `,
+    });
+
+    if (error) {
+        throw new Error(`Falha ao enviar e-mail de verificação: ${error.message}`);
+    }
+}
+
+export async function createEmailVerificationToken(userId) {
+    const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
+
+    await tokenRepo.update(
+        { user_id: userId, type: "EMAIL_VERIFICATION", used: false },
+        { used: true }
+    );
+
+    const token = generateRandomToken();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    const newToken = tokenRepo.create({
+        token,
+        type: "EMAIL_VERIFICATION",
+        user_id: userId,
+        expires_at: expiresAt,
+        used: false,
+    });
+
+    return tokenRepo.save(newToken);
 }
