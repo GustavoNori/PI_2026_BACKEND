@@ -60,7 +60,7 @@ export class AuthController {
       const repo = AppDataSource.getRepository(UserEntity);
       const { name, email, password, cpf, data_nascimento, state, preferences } = req.body;
 
-      if (!name || !email || !password || !cpf || !data_nascimento || !state || !preferences) {
+      if (!name || !email || !password || !cpf || !data_nascimento) {
         return res
           .status(400)
           .json({ message: "Nome, email, senha, CPF, data de nascimento, estado e preferências são obrigatórios" });
@@ -87,8 +87,6 @@ export class AuthController {
         role: "user",
         cpf,
         data_nascimento,
-        state,
-        preferences,
       });
       await repo.save(user);
 
