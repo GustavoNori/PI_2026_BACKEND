@@ -43,6 +43,10 @@ export class AuthController {
         return res.status(401).json({ message: "Invalid password" });
       }
 
+      if (!user.email_verified) {
+        return res.status(403).json({ message: "Confirme seu e-mail antes de fazer login" });
+      }
+
       const token = generateToken(user);
 
       return res.json({
@@ -58,7 +62,7 @@ export class AuthController {
   async createUser(req, res) {
     try {
       const repo = AppDataSource.getRepository(UserEntity);
-      const { name, email, password, cpf, data_nascimento } = req.body;
+      const { name, email, password, cpf, data_nascimento, state_code } = req.body;
 
       if (!name || !email || !password || !cpf || !data_nascimento) {
         return res
@@ -87,6 +91,7 @@ export class AuthController {
         role: "user",
         cpf,
         data_nascimento,
+        state_code,
       });
       await repo.save(user);
 
@@ -126,35 +131,35 @@ export class AuthController {
     return res.json(user);
   }
 
-async updateUser(req, res) {
-  try {
-    const repo = AppDataSource.getRepository(UserEntity);
-    const { id } = req.params;
+  async updateUser(req, res) {
+    try {
+      const repo = AppDataSource.getRepository(UserEntity);
+      const { id } = req.params;
 
-    if (req.user.id !== parseInt(id)) {
-      return res.status(403).json({ message: "Você não tem permissão para atualizar este usuário" });
+      if (req.user.id !== parseInt(id)) {
+        return res.status(403).json({ message: "Você não tem permissão para atualizar este usuário" });
+      }
+
+      const { name, state_code, preferences } = req.body;
+
+      const userToUpdate = await repo.findOneBy({ id: parseInt(id) });
+
+      if (!userToUpdate) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      if (name) userToUpdate.name = name;
+      if (state_code) userToUpdate.state_code = state_code;
+      if (preferences) userToUpdate.preferences = preferences;
+
+      await repo.save(userToUpdate);
+
+      return res.status(200).json({ message: "Usuário atualizado com sucesso" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro interno no servidor" });
     }
-
-    const { name, state, preferences } = req.body;
-
-    const userToUpdate = await repo.findOneBy({ id: parseInt(id) });
-
-    if (!userToUpdate) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
-    }
-
-    if (name) userToUpdate.name = name;
-    if (state) userToUpdate.state = state;
-    if (preferences) userToUpdate.preferences = preferences;
-
-    await repo.save(userToUpdate);
-
-    return res.status(200).json({ message: "Usuário atualizado com sucesso" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Erro interno no servidor" });
   }
-}
 
   async deleteUser(req, res) {
     const repo = AppDataSource.getRepository(UserEntity);

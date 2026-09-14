@@ -26,7 +26,7 @@ export const UserEntity = new EntitySchema({
     password_hash: {
       type: "varchar",
     },
-    state: {
+    state_code: {
       type: "varchar",
       nullable: true,
     },
