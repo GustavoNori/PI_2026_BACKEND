@@ -28,6 +28,7 @@ export const UserEntity = new EntitySchema({
     },
     state: {
       type: "varchar",
+      nullable: true,
     },
     preferences: {
       type: "simple-array",

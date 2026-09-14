@@ -63,7 +63,7 @@ export class AuthController {
       if (!name || !email || !password || !cpf || !data_nascimento) {
         return res
           .status(400)
-          .json({ message: "Nome, email, senha, CPF, data de nascimento, estado e preferências são obrigatórios" });
+          .json({ message: "Nome, email, senha, CPF, data de nascimento são obrigatórios" });
       }
 
       const existingUser = await repo.findOne({ where: { email } });
