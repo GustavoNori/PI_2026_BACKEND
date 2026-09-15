@@ -103,7 +103,8 @@ export class AuthController {
         console.error("Falha ao enviar e-mail de verificação:", emailError);
       }
 
-      return res.status(201).json({ message: "User created" });
+      const jwtToken = generateToken(user);
+      return res.status(201).json({ message: "User created", token: jwtToken });
     } catch (error) {
       if (
         error.driverError?.code === "ER_DUP_ENTRY" ||
