@@ -8,7 +8,7 @@ export class NoticeController {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const notices = await noticeRepo.find();
             const userRepo = AppDataSource.getRepository(UserEntity);
-            const {userId} = req.params;
+            const { userId } = req.params;
             const user = await userRepo.findOne({ where: { id: userId } });
 
 
@@ -21,7 +21,7 @@ export class NoticeController {
             if (userRole === "user" && notices.length > 5) {
                 const limitedNotices = notices.slice(0, 5);
                 return res.json(limitedNotices);
-            }else{
+            } else {
                 return res.json(notices);
             }
 
@@ -47,13 +47,13 @@ export class NoticeController {
             return res.status(500).json({ message: "Internal server error" });
         }
     }
-    
+
     async getNoticesByArea(req, res) {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const { areaId } = req.params;
             const notices = await noticeRepo.find({ where: { area_id: parseInt(areaId) } });
-            
+
             if (!notices || notices.length === 0) {
                 return res.status(404).json({ message: "No notices found for this area" });
             }
@@ -75,13 +75,13 @@ export class NoticeController {
                 return res.status(404).json({ message: "Notice not found" });
             }
 
-            notice.title = title;
-            notice.state_code = state_code;
-            notice.description = description;
-            notice.state = state;
-            notice.link = link;
-            notice.publication_date = publication_date;
-            notice.created_at = created_at;
+            if (title) notice.title = title;
+            if (state_code) notice.state_code = state_code;
+            if (description) notice.description = description;
+            if (state) notice.state = state;
+            if (link) notice.link = link;
+            if (publication_date) notice.publication_date = publication_date;
+            if (created_at) notice.created_at = created_at;
 
             await noticeRepo.save(notice);
             return res.json(notice);
