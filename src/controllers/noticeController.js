@@ -68,7 +68,7 @@ export class NoticeController {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
             const { id } = req.params;
-            const { title, state_code, description, state, link, publication_date } = req.body;
+            const { title, state_code, description, state, link, publication_date, created_at } = req.body;
             const notice = await noticeRepo.findOne({ where: { id: parseInt(id) } });
 
             if (!notice) {
@@ -81,6 +81,7 @@ export class NoticeController {
             if (state) notice.state = state;
             if (link) notice.link = link;
             if (publication_date) notice.publication_date = publication_date;
+            if (created_at) notice.created_at = created_at;
 
             await noticeRepo.save(notice);
             return res.json(notice);
