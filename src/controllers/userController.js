@@ -82,6 +82,10 @@ export class AuthController {
       if (!validateCPF(cpf)) {
         return res.status(400).json({ message: "CPF inválido" });
       }
+      const dataBase = new Date();
+      if (new Date(data_nascimento) > new Date(dataBase)) {
+        return res.status(400).json({ message: "Data de nascimento inválida" });
+      }
 
       const hashedPassword = await hashPassword(password);
       const user = repo.create({
