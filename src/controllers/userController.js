@@ -8,6 +8,7 @@ import { sendForgotPasswordEmail } from "../utils/emailUtils.js";
 import { UserTokenEntity } from "../entities/UserToken.js";
 import { generateRandomToken } from "../utils/tokenUtils.js";
 import { validateCPF } from "../utils/cpfValidator.js";
+import { validateName } from "../utils/nameValidator.js";
 import { createEmailVerificationToken, sendEmailVerificationEmail } from "../utils/emailUtils.js";
 
 export class AuthController {
@@ -68,6 +69,11 @@ export class AuthController {
         return res
           .status(400)
           .json({ message: "Nome, email, senha, CPF, data de nascimento são obrigatórios" });
+      }
+
+      const isNameValid = validateName(name);
+      if (!isNameValid) {
+        return res.status(400).json({ message: "Nome inválido. O nome deve conter apenas letras e espaços." });
       }
 
       const existingUser = await repo.findOne({ where: { email } });
