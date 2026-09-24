@@ -7,6 +7,7 @@ import favoriteRouter from "./routes/favoriteRoute.js";
 // import simulationRouter from "./routes/simulationRoute.js";
 // import attemptRouter from "./routes/simulationAttemptRoute.js";
 import noticeRoutes from "./routes/noticeRoutes.js";
+import searchRouter from "./routes/searchRoute.js";
 
 import cors from "cors";
 
@@ -22,5 +23,6 @@ app.use(favoriteRouter);
 // app.use(simulationRouter);
 // app.use(attemptRouter);
 app.use("/notices", noticeRoutes);
+app.use(searchRouter);
 
 export default app;
