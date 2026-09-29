@@ -6,11 +6,13 @@ export class NoticeController {
     async getAllNotices(req, res) {
         try {
             const noticeRepo = AppDataSource.getRepository(NoticeEntity);
-            const notices = await noticeRepo.find();
+
             const userRepo = AppDataSource.getRepository(UserEntity);
             const { userId } = req.params;
             const user = await userRepo.findOne({ where: { id: userId } });
-
+            const notices = await noticeRepo.find({
+                order: { id: "DESC" }
+                });
 
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
