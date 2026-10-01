@@ -13,6 +13,8 @@ router.get("/users", authMiddleware, checkRole("admin"), authController.getAllUs
 router.get("/users/:id", authMiddleware, checkRole("admin", "user", "premium"), authController.getOneUser);
 router.put("/users/:id", authMiddleware, checkRole("admin", "user", "premium"), authController.updateUser);
 router.delete("/users/:id", authMiddleware, checkRole("admin"), authController.deleteUser);
+router.patch("/users/:id/activate", authMiddleware, checkRole("admin"), authController.activateUser);
+router.patch("/users/:id/disable", authMiddleware, checkRole("admin"), authController.disableUser);
 
 router.patch("/users/:id/promoteToAdmin", authMiddleware, checkRole("admin"), authController.promoteToAdmin);
 router.patch("/users/:id/demoteToUser", authMiddleware, checkRole("admin"), authController.demoteToUser);

@@ -189,6 +189,46 @@ export class AuthController {
     return res.status(200).json({ message: "Usuário removido com sucesso" });
   }
 
+  async activateUser(req, res) {
+    const repo = AppDataSource.getRepository(UserEntity);
+
+    const {id} = req.params;
+
+    const userToEnable = await repo.findOneBy({ id: parseInt(id) });
+
+    if (userToEnable.active === true) {
+      return res.status(400).json({ message: "Usuário já está ativo" });
+    }
+
+    if (!userToEnable) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    userToEnable.active = true;
+    await repo.save(userToEnable);
+    return res.status(200).json({ message: "Usuário ativado com sucesso" });
+  }
+
+  async disableUser(req, res) {
+    const repo = AppDataSource.getRepository(UserEntity);
+
+    const { id } = req.params;
+
+    const userToDisable = await repo.findOneBy({ id: parseInt(id) });
+
+    if (userToDisable.active === false) {
+      return res.status(400).json({ message: "Usuário já está desativado" });
+    }
+
+    if (!userToDisable) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    userToDisable.active = false;
+    await repo.save(userToDisable);
+    return res.status(200).json({ message: "Usuário desativado com sucesso" });
+  }
+
   async getUserByEmail(req, res) {
     const repo = AppDataSource.getRepository(UserEntity);
 
