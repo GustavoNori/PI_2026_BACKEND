@@ -34,6 +34,10 @@ export const UserEntity = new EntitySchema({
       type: "simple-array",
       nullable: true,
     },
+    active:{
+      type: "boolean",
+      default: true,
+    },
     role: {
   type: "enum",
   enum: ["user", "admin", "premium"],
