@@ -273,7 +273,6 @@ export class AuthController {
     }
   }
 
-
   async getUserSubscription(req, res) {
     try {
       const repo = AppDataSource.getRepository(SubscriptionEntity);
