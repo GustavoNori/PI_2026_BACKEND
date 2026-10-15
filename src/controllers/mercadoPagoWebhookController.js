@@ -1,6 +1,8 @@
-
 import {
-  MercadoPagoConfig, PreApproval, WebhookSignatureValidator,} from "mercadopago";
+  MercadoPagoConfig,
+  PreApproval,
+  WebhookSignatureValidator,
+} from "mercadopago";
 
 import { AppDataSource } from "../../data-source.js";
 import { SubscriptionEntity } from "../entities/Subscription.js";
@@ -20,6 +22,13 @@ export class MercadoPagoWebhookController {
     }
 
     const dataId = req.query["data.id"];
+
+    console.log("Diagnóstico do webhook:", {
+      temXSignature: Boolean(req.headers["x-signature"]),
+      temXRequestId: Boolean(req.headers["x-request-id"]),
+      temDataId: Boolean(dataId),
+      temWebhookSecret: Boolean(webhookSecret),
+    });
 
     // 1. Valida a assinatura criptográfica da notificação
     try {
@@ -53,8 +62,7 @@ export class MercadoPagoWebhookController {
         id: String(dataId),
       });
 
-      const subscriptionRepo =
-        AppDataSource.getRepository(SubscriptionEntity);
+      const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
 
       const userRepo = AppDataSource.getRepository(UserEntity);
 
@@ -71,9 +79,7 @@ export class MercadoPagoWebhookController {
       });
 
       if (!subscription) {
-        console.error(
-          "Assinatura do Mercado Pago não encontrada no banco."
-        );
+        console.error("Assinatura do Mercado Pago não encontrada no banco.");
 
         // Pode ser uma notificação recebida antes de salvar o ID.
         // Não liberamos acesso sem encontrar o registro correspondente.
@@ -81,12 +87,7 @@ export class MercadoPagoWebhookController {
       }
 
       // 5. Atualiza somente com o estado consultado na API
-      const allowedStatuses = [
-        "pending",
-        "authorized",
-        "paused",
-        "cancelled",
-      ];
+      const allowedStatuses = ["pending", "authorized", "paused", "cancelled"];
 
       if (!allowedStatuses.includes(mpSubscription.status)) {
         console.warn("Estado de assinatura não reconhecido.");
@@ -96,8 +97,7 @@ export class MercadoPagoWebhookController {
       subscription.status = mpSubscription.status;
 
       if (!subscription.mercado_pago_subscription_id) {
-        subscription.mercado_pago_subscription_id =
-          String(mpSubscription.id);
+        subscription.mercado_pago_subscription_id = String(mpSubscription.id);
       }
 
       await subscriptionRepo.save(subscription);
@@ -121,10 +121,7 @@ export class MercadoPagoWebhookController {
       if (activeSubscriptions > 0 && user.role === "user") {
         user.role = "premium";
         await userRepo.save(user);
-      } else if (
-        activeSubscriptions === 0 &&
-        user.role === "premium"
-      ) {
+      } else if (activeSubscriptions === 0 && user.role === "premium") {
         user.role = "user";
         await userRepo.save(user);
       }
@@ -133,7 +130,7 @@ export class MercadoPagoWebhookController {
     } catch (error) {
       console.error(
         "Erro ao processar webhook do Mercado Pago:",
-        error.message
+        error.message,
       );
 
       return res.sendStatus(500);
