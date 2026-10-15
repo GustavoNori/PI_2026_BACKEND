@@ -80,7 +80,7 @@ export class MercadoPagoWebhookController {
         xSignature: req.headers["x-signature"],
         xRequestId: req.headers["x-request-id"],
         dataId: dataId ? String(dataId) : undefined,
-        secret: webhookSecret,
+        secret: webhookSecret.trim(),
       });
     } catch (error) {
       console.error("Erro na validação do webhook:", {
