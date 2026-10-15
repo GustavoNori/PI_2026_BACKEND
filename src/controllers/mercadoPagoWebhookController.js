@@ -23,6 +23,12 @@ export class MercadoPagoWebhookController {
 
     const dataId = req.query["data.id"];
 
+    console.log("Dados recebidos para validação:", {
+      dataId: String(dataId),
+      xRequestId: req.headers["x-request-id"],
+      xSignature: req.headers["x-signature"],
+    });
+
     console.log("Diagnóstico do webhook:", {
       temXSignature: Boolean(req.headers["x-signature"]),
       temXRequestId: Boolean(req.headers["x-request-id"]),
@@ -38,14 +44,14 @@ export class MercadoPagoWebhookController {
         dataId: dataId ? String(dataId) : undefined,
         secret: webhookSecret,
       });
-} catch (error) {
-  console.error("Erro na validação do webhook:", {
-    name: error.name,
-    message: error.message,
-  });
+    } catch (error) {
+      console.error("Erro na validação do webhook:", {
+        name: error.name,
+        message: error.message,
+      });
 
-  return res.sendStatus(401);
-}
+      return res.sendStatus(401);
+    }
 
     // 2. Confirma se a notificação é sobre uma assinatura
     const topic = req.body?.type ?? req.query.type;
