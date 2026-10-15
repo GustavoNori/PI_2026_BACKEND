@@ -38,10 +38,14 @@ export class MercadoPagoWebhookController {
         dataId: dataId ? String(dataId) : undefined,
         secret: webhookSecret,
       });
-    } catch (error) {
-      console.error("Assinatura do webhook inválida.");
-      return res.sendStatus(401);
-    }
+} catch (error) {
+  console.error("Erro na validação do webhook:", {
+    name: error.name,
+    message: error.message,
+  });
+
+  return res.sendStatus(401);
+}
 
     // 2. Confirma se a notificação é sobre uma assinatura
     const topic = req.body?.type ?? req.query.type;
