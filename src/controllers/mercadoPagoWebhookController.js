@@ -11,6 +11,8 @@ import { UserEntity } from "../entities/User.js";
 const accessToken = process.env.MP_ACCESS_TOKEN;
 const webhookSecret = process.env.MP_WEBHOOK_SECRET;
 
+console.log("Segredo carregado no controller:", Boolean(webhookSecret));
+
 const client = new MercadoPagoConfig({ accessToken });
 const preApproval = new PreApproval(client);
 
