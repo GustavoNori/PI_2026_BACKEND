@@ -1,8 +1,4 @@
-
-import {
-  MercadoPagoConfig,
-  PreApproval,
-} from "mercadopago";
+import { MercadoPagoConfig, PreApproval } from "mercadopago";
 
 const accessToken = process.env.MP_ACCESS_TOKEN;
 
@@ -30,9 +26,7 @@ export async function createMonthlySubscription({
   }
 
   if (!payerEmail || !externalReference) {
-    throw new Error(
-      "E-mail do pagador e referência externa são obrigatórios."
-    );
+    throw new Error("E-mail do pagador e referência externa são obrigatórios.");
   }
 
   const response = await preApproval.create({
@@ -51,6 +45,9 @@ export async function createMonthlySubscription({
       },
 
       back_url: `${process.env.FRONTEND_URL}/premium/retorno`,
+
+      notification_url:
+        "https://pi-2026-backend.onrender.com/api/subscriptions/webhook",
     },
   });
 
