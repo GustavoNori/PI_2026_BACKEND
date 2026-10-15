@@ -8,6 +8,7 @@ import favoriteRouter from "./routes/favoriteRoute.js";
 // import attemptRouter from "./routes/simulationAttemptRoute.js";
 import noticeRoutes from "./routes/noticeRoutes.js";
 import searchRouter from "./routes/searchRoute.js";
+import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 
 import cors from "cors";
 
@@ -24,5 +25,6 @@ app.use(favoriteRouter);
 // app.use(attemptRouter);
 app.use("/notices", noticeRoutes);
 app.use(searchRouter);
+app.use("/api/subscriptions", subscriptionRoutes);
 
 export default app;
