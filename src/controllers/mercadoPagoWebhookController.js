@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import {
   MercadoPagoConfig,
   PreApproval,
@@ -16,39 +15,6 @@ console.log("Segredo carregado no controller:", Boolean(webhookSecret));
 
 const client = new MercadoPagoConfig({ accessToken });
 const preApproval = new PreApproval(client);
-
-// DIAGNÓSTICO TEMPORÁRIO: remover depois de descobrir a causa do SignatureMismatch.
-// Não imprime o secret, só tamanhos e se o HMAC calculado bate com o v1 recebido.
-function diagnosticar(req, secret) {
-  const xSig = String(req.headers["x-signature"] || "");
-  const reqId = String(req.headers["x-request-id"] || "");
-  const id = String(req.query["data.id"] || "").toLowerCase();
-  const { ts, v1 } = Object.fromEntries(
-    xSig.split(",").map((p) => p.trim().split("=")),
-  );
-
-  const manifestos = {
-    padrao: `id:${id};request-id:${reqId};ts:${ts};`,
-    semRequestId: `id:${id};ts:${ts};`,
-  };
-
-  console.log(
-    "DIAG url:",
-    req.originalUrl,
-    "| secret len:",
-    secret.length,
-    "| trim len:",
-    secret.trim().length,
-  );
-
-  for (const [nome, m] of Object.entries(manifestos)) {
-    const h = crypto
-      .createHmac("sha256", secret.trim())
-      .update(m)
-      .digest("hex");
-    console.log("DIAG", nome, h === v1 ? "BATEU" : "não bateu");
-  }
-}
 
 export class MercadoPagoWebhookController {
   async handle(req, res) {
@@ -72,15 +38,13 @@ export class MercadoPagoWebhookController {
       temWebhookSecret: Boolean(webhookSecret),
     });
 
-    diagnosticar(req, webhookSecret);
-
     // 1. Valida a assinatura criptográfica da notificação
     try {
       WebhookSignatureValidator.validate({
         xSignature: req.headers["x-signature"],
         xRequestId: req.headers["x-request-id"],
         dataId: dataId ? String(dataId) : undefined,
-        secret: webhookSecret.trim(),
+        secret: webhookSecret,
       });
     } catch (error) {
       console.error("Erro na validação do webhook:", {
@@ -176,6 +140,13 @@ export class MercadoPagoWebhookController {
 
       return res.sendStatus(200);
     } catch (error) {
+      // Assinatura inexistente no Mercado Pago (ex.: simulação do painel com ID
+      // inventado): responde 200 para o MP não reenviar a notificação.
+      if (error.status === 404 || /not found/i.test(error.message || "")) {
+        console.warn("Assinatura não encontrada no Mercado Pago:", dataId);
+        return res.sendStatus(200);
+      }
+
       console.error(
         "Erro ao processar webhook do Mercado Pago:",
         error.message,

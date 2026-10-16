@@ -46,8 +46,6 @@ export async function createMonthlySubscription({
 
       back_url: `${process.env.FRONTEND_URL}/premium/retorno`,
 
-      notification_url:
-        "https://pi-2026-backend.onrender.com/api/subscriptions/webhook",
     },
   });
 
