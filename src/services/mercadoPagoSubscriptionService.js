@@ -1,16 +1,22 @@
 import { MercadoPagoConfig, PreApproval } from "mercadopago";
 
-const accessToken = process.env.MP_ACCESS_TOKEN;
+let preApproval;
 
-if (!accessToken) {
-  throw new Error("MP_ACCESS_TOKEN não foi configurado no .env");
+// Cria o cliente só quando for usado, para o servidor subir mesmo sem as
+// variáveis do Mercado Pago (útil em desenvolvimento local do front).
+function getPreApproval() {
+  if (!preApproval) {
+    const accessToken = process.env.MP_ACCESS_TOKEN;
+
+    if (!accessToken) {
+      throw new Error("MP_ACCESS_TOKEN não foi configurado no .env");
+    }
+
+    preApproval = new PreApproval(new MercadoPagoConfig({ accessToken }));
+  }
+
+  return preApproval;
 }
-
-const client = new MercadoPagoConfig({
-  accessToken,
-});
-
-const preApproval = new PreApproval(client);
 
 export async function createMonthlySubscription({
   plan,
@@ -29,7 +35,11 @@ export async function createMonthlySubscription({
     throw new Error("E-mail do pagador e referência externa são obrigatórios.");
   }
 
-  const response = await preApproval.create({
+  // Em dev local, deixe MP_NOTIFICATION_URL vazio: o webhook não alcança o
+  // seu computador mesmo, e a sincronização (/sync) cobre o status.
+  const notificationUrl = process.env.MP_NOTIFICATION_URL;
+
+  const response = await getPreApproval().create({
     body: {
       reason: `Assinatura mensal - ${plan.name}`,
 
@@ -46,9 +56,7 @@ export async function createMonthlySubscription({
 
       back_url: `${process.env.FRONTEND_URL}/premium/retorno`,
 
-      notification_url:
-        "https://pi-2026-backend.onrender.com/api/subscriptions/webhook",
-
+      ...(notificationUrl ? { notification_url: notificationUrl } : {}),
     },
   });
 

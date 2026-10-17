@@ -14,13 +14,40 @@ const ALLOWED_STATUSES = ["pending", "authorized", "paused", "cancelled"];
 const SYNCABLE_STATUSES = ["pending", "authorized", "paused"];
 
 /**
+ * Dá ou tira o acesso Premium conforme as assinaturas "authorized" do usuário.
+ */
+export async function refreshPremiumRole(userId) {
+  const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
+  const userRepo = AppDataSource.getRepository(UserEntity);
+
+  const user = await userRepo.findOneBy({ id: userId });
+
+  if (!user) {
+    return null;
+  }
+
+  const activeSubscriptions = await subscriptionRepo.count({
+    where: { user_id: userId, status: "authorized" },
+  });
+
+  if (activeSubscriptions > 0 && user.role === "user") {
+    user.role = "premium";
+    await userRepo.save(user);
+  } else if (activeSubscriptions === 0 && user.role === "premium") {
+    user.role = "user";
+    await userRepo.save(user);
+  }
+
+  return user.role;
+}
+
+/**
  * Consulta no Mercado Pago o estado real das assinaturas do usuário
  * e atualiza o banco e o acesso Premium.
  * Só confia no que a API do Mercado Pago devolve.
  */
 export async function syncUserSubscriptions(userId) {
   const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
-  const userRepo = AppDataSource.getRepository(UserEntity);
 
   const subscriptions = await subscriptionRepo.find({
     where: { user_id: userId, status: In(SYNCABLE_STATUSES) },
@@ -38,7 +65,6 @@ export async function syncUserSubscriptions(userId) {
         id: subscription.mercado_pago_subscription_id,
       });
 
-      // Garante que a assinatura consultada é mesmo a deste registro
       if (mpSubscription.external_reference !== subscription.external_reference) {
         results.push({ id: subscription.id, skipped: "external_reference diferente" });
         continue;
@@ -65,24 +91,47 @@ export async function syncUserSubscriptions(userId) {
     }
   }
 
-  // Atualiza o acesso Premium com base nas assinaturas autorizadas
-  const user = await userRepo.findOneBy({ id: userId });
+  const role = await refreshPremiumRole(userId);
 
-  if (!user) {
-    return { role: null, subscriptions: results };
-  }
+  return { role, subscriptions: results };
+}
 
-  const activeSubscriptions = await subscriptionRepo.count({
-    where: { user_id: userId, status: "authorized" },
+/**
+ * Cancela uma assinatura do próprio usuário no Mercado Pago e no banco.
+ * Atenção: hoje só "authorized" conta como Premium, então o acesso é
+ * removido assim que cancelar.
+ */
+export async function cancelUserSubscription(userId, subscriptionId) {
+  const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
+
+  const subscription = await subscriptionRepo.findOneBy({
+    id: subscriptionId,
+    user_id: userId,
   });
 
-  if (activeSubscriptions > 0 && user.role === "user") {
-    user.role = "premium";
-    await userRepo.save(user);
-  } else if (activeSubscriptions === 0 && user.role === "premium") {
-    user.role = "user";
-    await userRepo.save(user);
+  if (!subscription) {
+    const error = new Error("Assinatura não encontrada.");
+    error.code = "NOT_FOUND";
+    throw error;
   }
 
-  return { role: user.role, subscriptions: results };
+  if (!subscription.mercado_pago_subscription_id) {
+    const error = new Error("Assinatura sem vínculo com o Mercado Pago.");
+    error.code = "NO_MP_ID";
+    throw error;
+  }
+
+  if (subscription.status !== "cancelled") {
+    await preApproval.update({
+      id: subscription.mercado_pago_subscription_id,
+      body: { status: "cancelled" },
+    });
+
+    subscription.status = "cancelled";
+    await subscriptionRepo.save(subscription);
+  }
+
+  const role = await refreshPremiumRole(userId);
+
+  return { id: subscription.id, status: subscription.status, role };
 }
