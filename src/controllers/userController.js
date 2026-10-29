@@ -10,6 +10,7 @@ import { validateCPF } from "../utils/cpfValidator.js";
 import { validateName } from "../utils/nameValidator.js";
 import {
   sendForgotPasswordEmail,
+  sendEmailVerificationEmail,
   createEmailVerificationToken,
   createEmailChangeToken,
   sendEmailChangeEmail,
