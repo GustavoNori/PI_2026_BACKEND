@@ -63,7 +63,6 @@ export async function sendEmailVerificationEmail(userEmail, token) {
         throw new Error(`Falha ao enviar e-mail de verificação: ${error.message}`);
     }
 }
-
 export async function createEmailVerificationToken(userId) {
     const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
 
@@ -85,4 +84,68 @@ export async function createEmailVerificationToken(userId) {
     });
 
     return tokenRepo.save(newToken);
+}
+
+export async function sendEmailChangeEmail(newEmail, token) {
+    const confirmUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/confirm-email-change?token=${token}`;
+
+    const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: newEmail,
+        subject: "Confirme seu novo e-mail",
+        html: `
+            <p>Olá,</p>
+            <p>Recebemos um pedido para usar este endereço na sua conta. Confirme clicando no link abaixo (válido por 24 horas):</p>
+            <p><a href="${confirmUrl}">Confirmar novo e-mail</a></p>
+            <p>Se você não fez essa solicitação, ignore este e-mail.</p>
+        `,
+    });
+
+    if (error) {
+        throw new Error(`Falha ao enviar e-mail de troca de e-mail: ${error.message}`);
+    }
+}
+
+export async function sendEmailChangeNoticeToOldEmail(oldEmail) {
+    const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: oldEmail,
+        subject: "Solicitação de troca de e-mail",
+        html: `
+            <p>Olá,</p>
+            <p>Alguém solicitou a troca do e-mail da sua conta. Se foi você, basta confirmar pelo link enviado ao novo endereço.</p>
+            <p>Se não foi você, altere sua senha imediatamente.</p>
+        `,
+    });
+
+    if (error) {
+        throw new Error(`Falha ao enviar aviso ao e-mail antigo: ${error.message}`);
+    }
+}
+
+export async function createEmailChangeToken(userId) {
+    const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
+
+    await tokenRepo.update(
+        { user_id: userId, type: "EMAIL_CHANGE", used: false },
+        { used: true }
+    );
+
+    const token = generateRandomToken();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    const newToken = tokenRepo.create({
+        token,
+        type: "EMAIL_CHANGE",
+        user_id: userId,
+        expires_at: expiresAt,
+        used: false,
+    });
+
+    return tokenRepo.save(newToken);
+}
+
+export function emailIsEqual(emailNovo, emailAntigo) {
+    return emailNovo.trim().toLowerCase() === emailAntigo.trim().toLowerCase();
 }

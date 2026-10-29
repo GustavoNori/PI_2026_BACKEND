@@ -4,12 +4,13 @@ import { SubscriptionEntity } from "../entities/Subscription.js";
 import { hashPassword } from "../utils/hash.js";
 import { generateToken } from "../utils/jwt.js";
 import { comparePassword } from "../utils/hash.js";
-import { sendForgotPasswordEmail } from "../utils/emailUtils.js";
 import { UserTokenEntity } from "../entities/UserToken.js";
 import { generateRandomToken } from "../utils/tokenUtils.js";
 import { validateCPF } from "../utils/cpfValidator.js";
 import { validateName } from "../utils/nameValidator.js";
-import { createEmailVerificationToken, sendEmailVerificationEmail } from "../utils/emailUtils.js";
+import { sendForgotPasswordEmail, createEmailVerificationToken, createEmailChangeToken, sendEmailChangeEmail, sendEmailChangeNoticeToOldEmail, emailIsEqual,
+} from "../utils/emailUtils.js";
+import bcrypt from "bcrypt";
 
 export class AuthController {
   async getAllUsers(req, res) {
@@ -25,9 +26,7 @@ export class AuthController {
       const { identifier, password } = req.body;
 
       if (!identifier || !password) {
-        return res
-          .status(400)
-          .json({ message: "Identifier and password are required" });
+        return res.status(400).json({ message: "Identifier and password are required" });
       }
 
       const user = await repo.findOne({
@@ -192,7 +191,7 @@ export class AuthController {
   async activateUser(req, res) {
     const repo = AppDataSource.getRepository(UserEntity);
 
-    const {id} = req.params;
+    const { id } = req.params;
 
     const userToEnable = await repo.findOneBy({ id: parseInt(id) });
 
@@ -531,5 +530,114 @@ export class AuthController {
       return res.status(500).json({ message: "Erro interno no servidor" });
     }
   }
-}
+  async toChangeYourEmail(req, res) {
+    try {
+      const id = req.user.id;
+      const { email, password } = req.body;
 
+      if (!email) {
+        return res.status(400).json({ message: "O e-mail é obrigatório" });
+      }
+      if (!password) {
+        return res.status(400).json({ message: "A senha é obrigatória" });
+      }
+
+      const newEmail = email.trim().toLowerCase();
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+        return res.status(400).json({ message: "O e-mail fornecido é inválido" });
+      }
+
+      const userRepo = AppDataSource.getRepository(UserEntity);
+
+      const user = await userRepo.findOne({ where: { id } });
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+
+      const passwordOk = await bcrypt.compare(password, user.password_hash);
+      if (!passwordOk) {
+        return res.status(401).json({ message: "Senha incorreta" });
+      }
+
+      if (emailIsEqual(newEmail, user.email)) {
+        return res.status(400).json({ message: "O novo e-mail é igual ao atual" });
+      }
+
+      const emailInUse = await userRepo.findOne({ where: { email: newEmail } });
+      if (emailInUse) {
+        return res.status(409).json({ message: "E-mail já está em uso" });
+      }
+
+      await userRepo.update({ id }, { pending_email: newEmail });
+
+      const userToken = await createEmailChangeToken(id);
+
+      await sendEmailChangeEmail(newEmail, userToken.token);
+      await sendEmailChangeNoticeToOldEmail(user.email);
+
+      return res.status(200).json({ message: "Enviamos um link de confirmação para o novo e-mail" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro interno no servidor" });
+    }
+  }
+  async confirmEmailChange(req, res) {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: "Token é obrigatório" });
+        }
+
+        const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
+        const userRepo = AppDataSource.getRepository(UserEntity);
+
+        const userToken = await tokenRepo.findOne({
+            where: { token, type: "EMAIL_CHANGE", used: false },
+        });
+
+        if (!userToken) {
+            return res.status(400).json({ message: "Token inválido ou já utilizado" });
+        }
+
+        if (new Date() > new Date(userToken.expires_at)) {
+            return res.status(400).json({ message: "Token expirado, solicite a troca de e-mail novamente" });
+        }
+
+        const user = await userRepo.findOne({ where: { id: userToken.user_id } });
+
+        if (!user || !user.pending_email) {
+            return res.status(400).json({ message: "Nenhuma troca de e-mail pendente" });
+        }
+
+        const emailInUse = await userRepo.findOne({ where: { email: user.pending_email } });
+        if (emailInUse) {
+            return res.status(409).json({ message: "E-mail já está em uso" });
+        }
+
+        await AppDataSource.transaction(async (manager) => {
+            await manager.update(
+                UserEntity,
+                { id: user.id },
+                {
+                    email: user.pending_email,
+                    email_verified: true,
+                    pending_email: null,
+                }
+            );
+
+            await manager.update(UserTokenEntity, { id: userToken.id }, { used: true });
+        }); 
+
+        return res.status(200).json({ message: "E-mail atualizado com sucesso" });
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY" || error.code === "23505") {
+            return res.status(409).json({ message: "E-mail já está em uso" });
+        }
+
+        console.error(error);
+        return res.status(500).json({ message: "Erro interno no servidor" });
+    }
+}
+}

@@ -35,6 +35,10 @@ export const UserEntity = new EntitySchema({
       type: "simple-array",
       nullable: true,
     },
+    pending_email: {
+      type: "varchar",
+      nullable: true
+    },
     active:{
       type: "boolean",
       default: true,
