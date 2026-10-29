@@ -1,6 +1,7 @@
 import express from "express";
 import { SubscriptionController } from "../controllers/subscriptionController.js";
 import { SubscriptionSyncController } from "../controllers/subscriptionSyncController.js";
+import { SubscriptionCancelController } from "../controllers/subscriptionCancelController.js";
 import { authMiddleware } from "../utils/auth.js";
 
 import { MercadoPagoWebhookController } from "../controllers/mercadoPagoWebhookController.js";
@@ -8,15 +9,22 @@ import { MercadoPagoWebhookController } from "../controllers/mercadoPagoWebhookC
 const router = express.Router();
 const subscriptionController = new SubscriptionController();
 const syncController = new SubscriptionSyncController();
+const cancelController = new SubscriptionCancelController();
 const webhookController = new MercadoPagoWebhookController();
 
 router.post("/webhook", webhookController.handle.bind(webhookController));
 
-// Precisa vir ANTES de "/:planId", senão "sync" seria tratado como planId
+// Rotas fixas precisam vir ANTES de "/:planId"
 router.post(
   "/sync",
   authMiddleware,
   syncController.handle.bind(syncController),
+);
+
+router.post(
+  "/:id/cancel",
+  authMiddleware,
+  cancelController.handle.bind(cancelController),
 );
 
 router.post(
