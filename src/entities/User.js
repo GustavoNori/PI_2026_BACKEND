@@ -37,17 +37,21 @@ export const UserEntity = new EntitySchema({
     },
     pending_email: {
       type: "varchar",
-      nullable: true
+      nullable: true,
     },
-    active:{
+    notification_days: {
+      type: "simple-array",
+      nullable: true,
+    },
+    active: {
       type: "boolean",
       default: true,
     },
     role: {
-  type: "enum",
-  enum: ["user", "admin", "premium"],
-  default: "user",
-},
+      type: "enum",
+      enum: ["user", "admin", "premium"],
+      default: "user",
+    },
     email_verified: {
       type: "boolean",
       default: false,
@@ -69,9 +73,9 @@ export const UserEntity = new EntitySchema({
       inverseSide: "user",
     },
     favorites: {
-  type: "one-to-many",
-  target: "Favorite",
-  inverseSide: "user",
-},
+      type: "one-to-many",
+      target: "Favorite",
+      inverseSide: "user",
+    },
   },
 });

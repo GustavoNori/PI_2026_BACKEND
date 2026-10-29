@@ -6,16 +6,27 @@ import { generateRandomToken } from "./tokenUtils.js";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Ponte do Edital <naoresponda@pontedoedital.com.br>";
+export async function sendNoticeReminder(userEmail, notice, daysLeft) {
+    const deadline = String(notice.deadline_date).slice(0, 10).split("-").reverse().join("/");
 
-export async function sendNoticeReminder(userEmail, notice) {
+    let when;
+    if (daysLeft === 0) when = "O prazo termina hoje";
+    else if (daysLeft === 1) when = "O prazo termina amanhã";
+    else when = `Faltam ${daysLeft} dias para o prazo`;
+
+    const subject = daysLeft === 0
+        ? `Hoje é o prazo: ${notice.title}`
+        : `${when}: ${notice.title}`;
+
     const { error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: userEmail,
-        subject: `Lembrete: ${notice.title} está próximo da data`,
+        subject,
         html: `
             <p>Olá!</p>
-            <p>A publicação <strong>${notice.title}</strong> que você favoritou está com uma data se aproximando.</p>
+            <p>${when} da publicação <strong>${notice.title}</strong>, que você favoritou (prazo: ${deadline}).</p>
             <p><a href="${notice.link}">Ver publicação</a></p>
+            <p>Você pode escolher quais avisos receber nas configurações da sua conta.</p>
         `,
     });
 
