@@ -14,23 +14,10 @@ const webhookController = new MercadoPagoWebhookController();
 
 router.post("/webhook", webhookController.handle.bind(webhookController));
 
-// Rotas fixas precisam vir ANTES de "/:planId"
-router.post(
-  "/sync",
-  authMiddleware,
-  syncController.handle.bind(syncController),
-);
+router.post("/sync", authMiddleware, syncController.handle.bind(syncController),);
 
-router.post(
-  "/:id/cancel",
-  authMiddleware,
-  cancelController.handle.bind(cancelController),
-);
+  router.post("/:id/cancel", authMiddleware, cancelController.handle.bind(cancelController),);
 
-router.post(
-  "/:planId",
-  authMiddleware,
-  subscriptionController.create.bind(subscriptionController),
-);
+router.post("/:planId", authMiddleware, subscriptionController.create.bind(subscriptionController),);
 
 export default router;

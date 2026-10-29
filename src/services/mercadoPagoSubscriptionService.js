@@ -2,8 +2,6 @@ import { MercadoPagoConfig, PreApproval } from "mercadopago";
 
 let preApproval;
 
-// Cria o cliente só quando for usado, para o servidor subir mesmo sem as
-// variáveis do Mercado Pago (útil em desenvolvimento local do front).
 function getPreApproval() {
   if (!preApproval) {
     const accessToken = process.env.MP_ACCESS_TOKEN;
@@ -35,8 +33,6 @@ export async function createMonthlySubscription({
     throw new Error("E-mail do pagador e referência externa são obrigatórios.");
   }
 
-  // Em dev local, deixe MP_NOTIFICATION_URL vazio: o webhook não alcança o
-  // seu computador mesmo, e a sincronização (/sync) cobre o status.
   const notificationUrl = process.env.MP_NOTIFICATION_URL;
 
   const response = await getPreApproval().create({

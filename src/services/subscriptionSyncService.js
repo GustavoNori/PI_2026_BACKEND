@@ -13,9 +13,6 @@ const preApproval = new PreApproval(client);
 const ALLOWED_STATUSES = ["pending", "authorized", "paused", "cancelled"];
 const SYNCABLE_STATUSES = ["pending", "authorized", "paused"];
 
-/**
- * Dá ou tira o acesso Premium conforme as assinaturas "authorized" do usuário.
- */
 export async function refreshPremiumRole(userId) {
   const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
   const userRepo = AppDataSource.getRepository(UserEntity);
@@ -40,12 +37,6 @@ export async function refreshPremiumRole(userId) {
 
   return user.role;
 }
-
-/**
- * Consulta no Mercado Pago o estado real das assinaturas do usuário
- * e atualiza o banco e o acesso Premium.
- * Só confia no que a API do Mercado Pago devolve.
- */
 export async function syncUserSubscriptions(userId) {
   const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
 
@@ -96,11 +87,6 @@ export async function syncUserSubscriptions(userId) {
   return { role, subscriptions: results };
 }
 
-/**
- * Cancela uma assinatura do próprio usuário no Mercado Pago e no banco.
- * Atenção: hoje só "authorized" conta como Premium, então o acesso é
- * removido assim que cancelar.
- */
 export async function cancelUserSubscription(userId, subscriptionId) {
   const subscriptionRepo = AppDataSource.getRepository(SubscriptionEntity);
 

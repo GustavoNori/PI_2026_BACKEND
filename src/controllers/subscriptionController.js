@@ -74,7 +74,6 @@ export class SubscriptionController {
         currency: "BRL",
       });
 
-      // 7. Cria a assinatura mensal no Mercado Pago
       const mercadoPagoSubscription = await createMonthlySubscription({
         plan,
         payerEmail:
@@ -84,14 +83,12 @@ export class SubscriptionController {
         externalReference,
       });
 
-      // 8. Atualiza o registro com a resposta da API
       subscription.mercado_pago_subscription_id = mercadoPagoSubscription.id;
 
       subscription.status = mercadoPagoSubscription.status || "pending";
 
       await subscriptionRepo.save(subscription);
 
-      // 9. Retorna o link para o frontend
       return res.status(201).json({
         message: "Assinatura criada. Conclua a autorização no Mercado Pago.",
         subscriptionId: subscription.id,
