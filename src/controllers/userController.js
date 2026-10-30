@@ -53,9 +53,10 @@ export class AuthController {
       }
 
       if (!user.email_verified) {
-        return res
-          .status(403)
-          .json({ message: "Confirme seu e-mail antes de fazer login" });
+        return res.status(403).json({
+          message: "Confirme seu e-mail antes de fazer login",
+          code: "EMAIL_NOT_VERIFIED",
+        });
       }
 
       const token = generateToken(user);
