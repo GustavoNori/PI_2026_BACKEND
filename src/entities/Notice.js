@@ -43,12 +43,18 @@ export const NoticeEntity = new EntitySchema({
       nullable: true,
     },
 
+    deadline_date: {
+      type: "date",
+      nullable: true,
+    },
+
     created_at: {
       type: "timestamp",
       createDate: true,
     },
   },
 
+  relations: {
     email_logs: {
       type: "one-to-many",
       target: "EmailLog",
@@ -60,5 +66,11 @@ export const NoticeEntity = new EntitySchema({
       target: "Favorite",
       inverseSide: "notice",
     },
+
+    notifications: {
+      type: "one-to-many",
+      target: "Notification",
+      inverseSide: "notice",
+    },
   },
-);
+});

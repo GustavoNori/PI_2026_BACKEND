@@ -21,7 +21,7 @@ if (!testUser) {
 }
 
 const targetDate = new Date();
-targetDate.setDate(targetDate.getDate() + 3);
+targetDate.setDate(targetDate.getDate() + 7);
 const targetDateStr = targetDate.toISOString().split("T")[0]; 
 
 let testNotice = await noticeRepo.findOne({ where: {} });
@@ -32,7 +32,7 @@ if (!testNotice) {
     process.exit(1);
 }
 
-testNotice.publication_date = targetDateStr;
+testNotice.deadline_date = targetDateStr;
 await noticeRepo.save(testNotice);
 
 const favoriteExists = await favoriteRepo.findOne({
@@ -46,7 +46,7 @@ if (favoriteExists) {
         user_id: testUser.id,
         notice_id: testNotice.id,
     });
-    console.log(`Favorite de teste criado! Notice "${testNotice.title}" com publication_date = ${targetDateStr}`);
+    console.log(`Favorite de teste criado! Notice "${testNotice.title}" com deadline_date = ${targetDateStr} (7 dias a partir de hoje, data-alvo de notificação)`);
 }
 
 await AppDataSource.destroy();

@@ -7,7 +7,17 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Ponte do Edital <naoresponda@pontedoedital.com.br>";
 export async function sendNoticeReminder(userEmail, notice, daysLeft) {
-    const deadline = String(notice.deadline_date).slice(0, 10).split("-").reverse().join("/");
+    const rawDeadline = notice.deadline_date;
+    let deadlineStr;
+    if (rawDeadline instanceof Date) {
+        const y = rawDeadline.getFullYear();
+        const m = String(rawDeadline.getMonth() + 1).padStart(2, "0");
+        const d = String(rawDeadline.getDate()).padStart(2, "0");
+        deadlineStr = `${y}-${m}-${d}`;
+    } else {
+        deadlineStr = String(rawDeadline).slice(0, 10);
+    }
+    const deadline = deadlineStr.split("-").reverse().join("/");
 
     let when;
     if (daysLeft === 0) when = "O prazo termina hoje";

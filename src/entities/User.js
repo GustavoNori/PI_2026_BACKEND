@@ -77,5 +77,10 @@ export const UserEntity = new EntitySchema({
       target: "Favorite",
       inverseSide: "user",
     },
+    notifications: {
+      type: "one-to-many",
+      target: "Notification",
+      inverseSide: "user",
+    },
   },
 });
