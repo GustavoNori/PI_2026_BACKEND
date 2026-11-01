@@ -40,11 +40,13 @@ export async function runFavoriteNotifications() {
     }
     const targetDates = Object.keys(dateToDays);
 
+    // Data de referência do aviso: usa deadline_date quando existir;
+    // caso contrário cai para publication_date (campo que o admin preenche como "prazo").
     const favorites = await favoriteRepository
         .createQueryBuilder("favorite")
         .innerJoinAndSelect("favorite.notice", "notice")
         .innerJoinAndSelect("favorite.user", "user")
-        .where("notice.deadline_date IN (:...targetDates)", { targetDates })
+        .where("(COALESCE(notice.deadline_date, notice.publication_date) IN (:...targetDates))", { targetDates })
         .andWhere("user.active = :active", { active: true })
         .andWhere("user.email_verified = :verified", { verified: true })
         .andWhere("user.role IN (:...roles)", { roles: ["premium", "admin"] })
@@ -53,8 +55,8 @@ export async function runFavoriteNotifications() {
     console.log(`Encontrados ${favorites.length} favoritos com prazo em datas de aviso`);
 
     for (const favorite of favorites) {
-        const deadline = toDateString(favorite.notice.deadline_date);
-        const daysLeft = dateToDays[deadline];
+        const refDate = toDateString(favorite.notice.deadline_date ?? favorite.notice.publication_date);
+        const daysLeft = dateToDays[refDate];
         if (daysLeft === undefined) continue;
 
         const chosen = favorite.user.notification_days;

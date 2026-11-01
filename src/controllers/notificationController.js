@@ -1,7 +1,19 @@
 import { AppDataSource } from "../../data-source.js";
 import { NotificationEntity } from "../entities/Notification.js";
+import { runFavoriteNotifications } from "../jobs/notifyFavorites.js";
 
 class NotificationController {
+    async runNow(req, res) {
+        try {
+            console.log(`Job de notificações disparado manualmente por ${req.user.email}`);
+            await runFavoriteNotifications();
+            return res.status(200).json({ message: "Job de notificações executado com sucesso" });
+        } catch (error) {
+            console.error("Erro ao executar job de notificações manualmente:", error);
+            return res.status(500).json({ message: "Erro ao executar o job de notificações" });
+        }
+    }
+
     async list(req, res) {
         try {
             const notifications = await AppDataSource.getRepository(NotificationEntity).find({

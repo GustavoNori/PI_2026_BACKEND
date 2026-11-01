@@ -7,7 +7,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Ponte do Edital <naoresponda@pontedoedital.com.br>";
 export async function sendNoticeReminder(userEmail, notice, daysLeft) {
-    const rawDeadline = notice.deadline_date;
+    // Usa deadline_date quando existir; senão a publication_date (mesma regra do job).
+    const rawDeadline = notice.deadline_date ?? notice.publication_date;
     let deadlineStr;
     if (rawDeadline instanceof Date) {
         const y = rawDeadline.getFullYear();
