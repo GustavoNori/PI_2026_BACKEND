@@ -32,6 +32,11 @@ export const NoticeEntity = new EntitySchema({
       nullable: true,
     },
 
+    themes: {
+      type: "simple-array",
+      nullable: true,
+    },
+
     link: {
       type: "varchar",
       unique: true,
