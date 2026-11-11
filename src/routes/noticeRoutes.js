@@ -1,3 +1,9 @@
+/**
+ * Declara os endpoints do módulo de notícias/editais (montado em "/notices"):
+ * listagem por usuário, por área, consulta por id, atualização e remoção.
+ * Autenticação: as três rotas de leitura são públicas; atualizar e remover
+ * exigem authMiddleware + checkRole("admin").
+ */
 import { Router } from "express";
 import { NoticeController } from "../controllers/noticeController.js";
 import { checkRole } from "../middlewares/checkRoles.js";

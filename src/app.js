@@ -1,3 +1,10 @@
+/**
+ * Monta a aplicação Express: habilita o CORS, faz o parse do JSON das
+ * requisições e registra os routers dos módulos ativos — usuários/auth,
+ * dúvidas e respostas, favoritos, notificações/preferências, notícias,
+ * busca e assinaturas. Os routers de questões e simulações estão
+ * comentados (fora de uso) e não são registrados.
+ */
 import express from "express";
 import router from "./routes/userRoutes.js";
 import doubtRouter from "./routes/doubtRoute.js";
